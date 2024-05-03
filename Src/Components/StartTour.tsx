@@ -5,7 +5,6 @@ import Sound from 'react-native-sound';
 import { useNavigation } from '@react-navigation/native'; 
 import IconFontAwesome from 'react-native-vector-icons/FontAwesome'; 
 import colors from '../Constants/colors';
-
 interface AudioFile {
   Id: number;
   LanguageCode: string;
@@ -19,13 +18,27 @@ interface AudioPlayerProps {
   route: any; // Add route prop
 }
 
-const AudioPlayer = ({ route }: AudioPlayerProps) => {
-  const { data,placeName } = route.params; // Access data from route.params
+const StartTour = ({ route }: AudioPlayerProps) => {
+  const { data,placeName,apiData } = route.params; // Access data from route.params
   const filePath = 'file:///storage/emulated/0/Android/data/com.audiwalknew/files/'; 
   const [sound, setSound] = useState<Sound | null>(null);
   const [isAlreadyPlaying, setIsPlaying] = useState(false);
+  const [currentIndex,setCurrentIndex]=useState(0);
   const navigating = useNavigation();
+  console.log('data',data)
+  console.log('place',placeName);
+  console.log('api',apiData);
+  console.log('areas',apiData[0].Areas[0]);
+  console.log('AreaContent',apiData[0].Areas[0].AreaContents[0]);
+  console.log('contentFile',apiData[0].Areas[0].AreaContents[0].ContentFiles);
+  console.log('contentFileone',apiData[0].Areas[1].AreaContents[0].ContentFiles);
+  console.log('contentFiletwo',apiData[0].Areas[2].AreaContents[0].ContentFiles);
+  console.log('contentFile three',apiData[0].Areas[3].AreaContents[0].ContentFiles);
 
+  console.log('second',apiData[0].Areas[1]);
+  console.log('third',apiData[0].Areas[2])
+  
+  
   useEffect(() => { 
     // Load the audio file when the component mounts
     const newSound=()=> new Sound(filePath, null, (error: any) => {
@@ -83,9 +96,36 @@ const AudioPlayer = ({ route }: AudioPlayerProps) => {
   const [index, setIndex] = useState(0);
   const routes = data && Array.isArray(data) ? data.map((item: any, index: number) => ({ key: index.toString(), ...item })) : [];
 
-
+  const handlePreviousContent=()=>{
+    console.log('Previous button clicked');
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    } 
+    else{
+      Alert.alert('No more data is available');
+    }
+  }
+ 
+  const handleNextContent=()=>{
+    console.log('Next Button Clicked')
+   const nextAreaIndex=currentIndex+1;
+   if(apiData && apiData[0] && apiData[0].Areas && apiData[0].Areas[nextAreaIndex]){
+    const nextData=apiData[0].Areas[nextAreaIndex];
+    const nextContentFiles=nextData.AreaContents[0].ContentFiles;
+    const nextTitle=nextData.AreaContents[0].Title;
+    navigating.navigate('StartTour',{data:nextContentFiles,placeName:nextTitle,apiData:apiData})
+    setCurrentIndex(nextAreaIndex+1)
+   } else{
+    setCurrentIndex(currentIndex);
+    Alert.alert('No more areas available');
+    
+   }
+  }
+  
   const renderScene = ({ route }) => {
+    // const currentRoute = routes[currentIndex];
     return (
+        <>
      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
        {
        route.Type === 0 &&
@@ -112,7 +152,22 @@ const AudioPlayer = ({ route }: AudioPlayerProps) => {
        </TouchableOpacity>
        
        }
+       
       </View> 
+        
+      <View style={{flexDirection:'row',justifyContent:'space-between',padding:'10%'}}>
+      <TouchableOpacity onPress={()=>handlePreviousContent()}>
+      <View style={{backgroundColor:colors.customBlack,borderRadius:5,elevation:5}}>
+          <Text style={{fontSize:25,color:'white',padding:10}}>Previous</Text>
+         </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>handleNextContent()}>
+      <View style={{backgroundColor:colors.customBlack,borderRadius:5,elevation:5}}>
+          <Text style={{fontSize:25,color:'white',padding:10}} >Next</Text>
+         </View>
+      </TouchableOpacity>
+     </View>
+     </>
     );
   };
 
@@ -129,6 +184,7 @@ const AudioPlayer = ({ route }: AudioPlayerProps) => {
 
   return (
   <View style={{height:'100%'}}>
+
   <View style={{height:'7%',backgroundColor:'red',flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:30}}>
     <TouchableOpacity onPress={()=>{
           console.log('object')
@@ -185,4 +241,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AudioPlayer;
+export default StartTour;
