@@ -98,12 +98,18 @@ const StartTour = ({ route }: AudioPlayerProps) => {
 
   const handlePreviousContent=()=>{
     console.log('Previous button clicked');
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    } 
-    else{
-      Alert.alert('No more data is available');
-    }
+      const previousIndex=currentIndex-1;
+      if(apiData && apiData[0] && apiData[0].Areas && apiData[0].Areas[previousIndex]){
+      const previousData=apiData[0].Areas[previousIndex];
+      const previousContentFiles=previousData.AreaContents[0].ContentFiles;
+      const previousTitle=previousData.AreaContents[0].Title;
+      navigating.navigate('StartTour',{data:previousContentFiles,placeName:previousTitle,apiData:apiData})
+      setCurrentIndex(currentIndex-1);
+      }
+      else{
+        setCurrentIndex(currentIndex);
+        Alert.alert('No more data is available');
+      }
   }
  
   const handleNextContent=()=>{
