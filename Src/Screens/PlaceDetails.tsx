@@ -123,7 +123,7 @@ const PlaceDetails = () => {
             if (!fileExists) {
               await RNFS.downloadFile({
                 fromUrl: file.Path,
-                toFile: filePath + file.Link,
+                toFile: filePath,
               })
                 .promise.then((result: any) => {
                   console.log('downloaded file', file.Link);

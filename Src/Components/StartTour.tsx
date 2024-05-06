@@ -5,6 +5,7 @@ import Sound from 'react-native-sound';
 import { useNavigation } from '@react-navigation/native'; 
 import IconFontAwesome from 'react-native-vector-icons/FontAwesome'; 
 import colors from '../Constants/colors';
+
 interface AudioFile {
   Id: number;
   LanguageCode: string;
@@ -104,7 +105,7 @@ const StartTour = ({ route }: AudioPlayerProps) => {
       const previousContentFiles=previousData.AreaContents[0].ContentFiles;
       const previousTitle=previousData.AreaContents[0].Title;
       navigating.navigate('StartTour',{data:previousContentFiles,placeName:previousTitle,apiData:apiData})
-      setCurrentIndex(currentIndex-1);
+      setCurrentIndex(previousIndex-1);
       }
       else{
         setCurrentIndex(currentIndex);

@@ -130,7 +130,7 @@ const WelcomeScreen = () => {
         console.error('apiData or its properties are undefined.', dataSingle);
         return;
       }
-      const fileName = dataSingle[0].Features[0].Link;
+      const fileName = dataSingle[0].Features[0].Link;// image link
       // Check if file already exists
       const fileInfo = await RNFS.exists(filePath + fileName);
 
@@ -143,10 +143,10 @@ const WelcomeScreen = () => {
       }
       try {
         await RNFS.downloadFile({
-          fromUrl: dataSingle[0].Features[0].Path,
+          fromUrl: dataSingle[0].Features[0].Path,//khazana mahal image
           toFile: filePath + fileName,
         })
-          .promise.then((result: any) => {
+          .promise.then((result: any) => {  
             console.log('download success', result);
             console.log('File downloaded successfully:');
             setLoading(false);
@@ -178,7 +178,7 @@ const WelcomeScreen = () => {
         },
       );
       console.log('location permission granted');
-      if (granted === 'granted') {
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         console.log('You can use Geolocation');
         return true;
       } else {
@@ -186,21 +186,22 @@ const WelcomeScreen = () => {
         return false;
       }
     } catch (error) {
+      console.log('Error requesting location permission:', error);
       return false;
     }
   };
   const permission = async () => {
     try {
-      const response = await requestLocation();
-      console.log('response', response);
-      if (response) {
+      const granted = await requestLocation();
+      console.log('permission granted', granted);
+      if (granted) {
         Geolocation.getCurrentPosition(
           position => {
             console.log('position', position);
             console.log('apilat', apiData[0].Latitude);
             console.log('apilan', apiData[0].Longitude);
             if (
-              position.coords.latitude === apiData[0].Latitude && position.coords.longitude ===apiData[0].Longitude
+              position.coords.latitude === 9.50306 && position.coords.longitude ===77.586115
             ) {
               navigation.navigate('PlaceDetails');
             }
@@ -224,16 +225,75 @@ const WelcomeScreen = () => {
           },
           {
             enableHighAccuracy: true,
-            timeout: 30000,
+            timeout: 60000,
             maximumAge: 10000,
           },
         );
       }
+      else{
+        setLoading(false);
+      Alert.alert('Location Permission Denied', 'Please grant location permission to continue.');
+      }
     } catch (error) {
       console.log('Error requesting location permission:', error);
+      setLoading(false);
     }
   };
 
+  // const getCurrentLocation=()=>{
+  //   setLoading(true);
+  //   Geolocation.getCurrentPosition(
+  //     position=>{
+  //       setLoading(false);
+  //       const latitude=position.coords.latitude;
+  //       const longitude=position.coords.longitude;
+  //       console.log('Latitude',latitude);
+  //       console.log('Longitude',longitude);
+  //       compareLocation(latitude,longitude);
+  //     },
+  //     error=>{
+  //       setLoading(false);
+  //       console.error('Error getting location:',error.code,error.message);
+  //       Alert.alert('Error','Failed to get Location');
+  //     },
+  //     {
+  //       enableHighAccuracy:true,timeout:30000,
+  //       maximumAge:10000
+  //     }
+  //   )
+  // }
+
+  // const compareLocation=(latitude:any,longitude:any)=>{
+  //   const desiredLat=9.50306;
+  //   const desiredLong=77.586115;
+  //   const thres=0.0001;
+  //   const withinRange=Math.abs(latitude-desiredLat)<thres && Math.abs(longitude-desiredLong)<thres;
+  //     console.log(withinRange);
+      
+  //   if(withinRange){
+  //     console.log('User is within the desired location range');
+  //     navigation.navigate('PlaceDetails');
+  //     checkPermission(apiData);
+
+  //   }
+  //   else{
+  //     Alert.alert('Location Alert','You are not in desired location',[
+  //       {
+  //         text:'Ok',onPress:()=>navigation.navigate('WelcomeScreen')
+  //       }
+  //     ])
+  //   }
+  // }
+
+  // const handleGetStarted=async()=>{
+  //   const hasPermission=await requestLocation();
+  //   if(hasPermission){
+  //     getCurrentLocation();
+  //   }
+  //   else{
+  //     Alert.alert('Permission Denied');
+  //   }
+  // }
   return (
     <View
       style={{height: '100%', alignItems: 'center', justifyContent: 'center'}}>
@@ -256,9 +316,9 @@ const WelcomeScreen = () => {
             },
           ]}
           onPress={() => {
-            // permission();
+             permission();
              setLoading(true);
-            checkPermission(apiData);
+             checkPermission(apiData)
           }}>
           <Text style={style.buttonText}>Get started </Text>
         </TouchableOpacity>
